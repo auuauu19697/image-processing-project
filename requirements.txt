@@ -2,3 +2,6 @@
 #specify the version of the libraries using this "library==version" ex "numpy==1.18.1"
 numpy
 pandas
+streamlit
+opencv-python
+ultralytics
