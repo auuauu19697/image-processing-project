@@ -9,7 +9,7 @@ model = YOLO('yolo8n.pt')
 def video_process_page():
 
     # Streamlit app title
-    st.title("YOLOv8 Object Detection and Tracking")
+    st.title("Car Crash Detection and Tracking")
 
     # Video file uploader
     video_file = st.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'mkv'])
@@ -82,7 +82,7 @@ def video_process_page():
                 frame_result = cv2.cvtColor(frame_result, cv2.COLOR_BGR2RGB)
 
                 # Update Streamlit display
-                stframe.image(frame_result, channels='RGB', use_container_width=True)
+                stframe.image(frame_result, channels='RGB', use_column_width=True)
                 car_count_text.markdown(f"**Car detected:** {car_count}")
                 accident_count_text.markdown(f"**Accident detected:** {accident_count}")
                 crossed_car_count_text.markdown(f"**Cars crossed the line:** {crossed_car_count}")
