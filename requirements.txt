@@ -5,3 +5,4 @@ pandas
 streamlit
 opencv-python
 ultralytics
+streamlit_navigation_bar
