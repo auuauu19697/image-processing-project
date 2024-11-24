@@ -1,6 +1,8 @@
+import os
 import cv2
 import streamlit as st
 from ultralytics import YOLO
+import tempfile
 import time
 
 # Load the YOLOv8 model
@@ -14,81 +16,48 @@ def video_process_page():
     # Video file uploader
     video_file = st.file_uploader("Upload a Video", type=['mp4', 'mov', 'avi', 'mkv'])
 
+    if "temp_video_path" not in st.session_state:
+        st.session_state.temp_video_path = None  # Initialize session state for the video path
+
     if video_file is not None:
-        # Initialize counts and display placeholders
-        car_count = 0
-        accident_count = 0
-        crossed_car_count = 0
-        car_count_text = st.empty()
-        accident_count_text = st.empty()
-        crossed_car_count_text = st.empty()
-        car_count_text.markdown(f"**Car detected:** {car_count}")
-        accident_count_text.markdown(f"**Accident detected:** {accident_count}")
-        crossed_car_count_text.markdown(f"**Cars crossed the line:** {crossed_car_count}")
+        # Save uploaded video to a unique temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as temp_file:
+            st.session_state.temp_video_path = temp_file.name
+            temp_file.write(video_file.read())
 
-        # Define a vertical line position for detecting crossings
-        line_position = 240
+        try:
+            # Load video and initialize placeholders
+            cap = cv2.VideoCapture(st.session_state.temp_video_path)
+            stframe = st.empty()
+            frame_counter = 0
+            frame_skip = 1  # Process every nth frame
+            tracked_cars = {}
+            crossed_car_ids = set()
 
-        # Save uploaded video to a temporary file
-        temp_video_path = 'temp_video.mp4'
-        with open(temp_video_path, 'wb') as f:
-            f.write(video_file.read())
+            while True:
+                ret, frame = cap.read()
+                if not ret:
+                    break
 
-        # Load video and initialize placeholders
-        cap = cv2.VideoCapture(temp_video_path)
-        stframe = st.empty()
-        frame_counter = 0
-        frame_skip = 1  # Process every nth frame
-        tracked_cars = {}
-        crossed_car_ids = set()
+                if frame_counter % frame_skip == 0:
+                    frame = cv2.resize(frame, (640, 480))
+                    result = model.track(frame, persist=True)
+                    frame_result = result[0].plot()
 
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                break
-            
-            if frame_counter % frame_skip == 0:
-                frame = cv2.resize(frame, (640, 480))
-                result = model.track(frame, persist=True)
-                frame_result = result[0].plot()
-                detections = result[0].boxes
-                labels = detections.cls
-                confidences = detections.conf
-                bboxes = detections.xyxy
-                ids = detections.id
+                    # Convert frame from BGR to RGB
+                    frame_result = cv2.cvtColor(frame_result, cv2.COLOR_BGR2RGB)
 
-                car_count = 0  # Reset car count for this frame
+                    # Update Streamlit display
+                    stframe.image(frame_result, channels='RGB', use_column_width=True)
 
-                for i in range(len(labels)):
-                    if labels[i] == 1 and confidences[i] > 0.35:  # Only for car detections
-                        car_count += 1
-                        x1, y1, x2, y2 = bboxes[i].cpu().numpy()
-                        car_id = int(ids[i].item())
+                    time.sleep(0.015)  # Control frame rate
 
-                        if car_id not in crossed_car_ids:
-                            if car_id not in tracked_cars:
-                                tracked_cars[car_id] = y1
-                            else:
-                                previous_y = tracked_cars[car_id]
-                                if (previous_y < line_position <= y1) or (previous_y > line_position >= y1):
-                                    crossed_car_count += 1
-                                    crossed_car_ids.add(car_id)
-                            tracked_cars[car_id] = y1
+                frame_counter += 1
 
-                # Clean up tracked cars
-                tracked_cars = {car_id: pos for car_id, pos in tracked_cars.items() if car_id in ids.cpu().numpy()}
+            cap.release()  # Release video capture object
 
-                # Convert frame from BGR to RGB
-                frame_result = cv2.cvtColor(frame_result, cv2.COLOR_BGR2RGB)
-
-                # Update Streamlit display
-                stframe.image(frame_result, channels='RGB', use_column_width=True)
-                car_count_text.markdown(f"**Car detected:** {car_count}")
-                accident_count_text.markdown(f"**Accident detected:** {accident_count}")
-                crossed_car_count_text.markdown(f"**Cars crossed the line:** {crossed_car_count}")
-
-                time.sleep(0.015)  # Control frame rate
-
-            frame_counter += 1
-
-        cap.release()  # Release video capture object
+        finally:
+            # Delete the temporary file after use
+            if st.session_state.temp_video_path and os.path.exists(st.session_state.temp_video_path):
+                os.remove(st.session_state.temp_video_path)
+                st.session_state.temp_video_path = None  # Reset session state
