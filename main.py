@@ -4,10 +4,9 @@ from ultralytics import YOLO
 import numpy as np
 import time
 
-# Load YOLOv8 model
-model = YOLO('yolov8n.pt')
+# Load model
+model = YOLO('yolo8n.pt')
 
-# Streamlit app title
 st.title("YOLOv8 Object Detection and Tracking")
 
 # Upload video file
