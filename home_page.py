@@ -1,12 +1,17 @@
 import streamlit as st
 
 def home_page():
-    st.title("Welcome to the Home Page!")
-    st.write("This is the home page of the app.")
-    st.image("https://via.placeholder.com/800x400", caption="A placeholder image for your home page")
+    st.title("Welcome to Car Crash Detection and Tracking App")
+    st.write("This is a Streamlit app using to represent car crash detection and tracking model.")
+    st.write("Here is the example result of the model")
+    
+    # Replace the image with a video player
+    video_url = "https://www.w3schools.com/html/mov_bbb.mp4"  # You can replace this with your own video URL
+    st.video(video_url)
+
     st.markdown(
         """
-        ### Features of the App:
+        ### Features of the Model:
         - Navigate between pages using the sidebar.
         - Process videos on the "Video Processing" page.
         - Explore more features coming soon!
