@@ -74,10 +74,21 @@ def video_process_page():
                     for i in range(len(labels)):
                         if labels[i] == 1 and confidences[i] > 0.35:  # Only for car detections
                             car_count += 1
-                            x1, y1, x2, y2 = bboxes[i].cpu().numpy()
+
+                            # Handle bounding boxes (bboxes) safely
+                            bbox = bboxes[i]
+                            if bbox.is_cuda:  # Move to CPU if needed
+                                x1, y1, x2, y2 = bbox.cpu().numpy()
+                            else:
+                                x1, y1, x2, y2 = bbox.numpy()
+
                             # Ensure that 'ids' is valid and has values
                             if ids is not None and len(ids) > 0:
-                                car_id = int(ids[i].item())
+                                car_id_tensor = ids[i]
+                                if car_id_tensor.is_cuda:  # Move to CPU if needed
+                                    car_id = int(car_id_tensor.cpu().item())
+                                else:
+                                    car_id = int(car_id_tensor.item())
 
                                 if car_id not in crossed_car_ids:
                                     if car_id not in tracked_cars:
@@ -90,7 +101,11 @@ def video_process_page():
                                     tracked_cars[car_id] = y1
 
                     # Clean up tracked cars
-                    tracked_cars = {car_id: pos for car_id, pos in tracked_cars.items() if car_id in ids.cpu().numpy()}
+                    if ids is not None:
+                        ids_array = ids.cpu().numpy() if ids.is_cuda else ids.numpy()
+                        tracked_cars = {car_id: pos for car_id, pos in tracked_cars.items() if car_id in ids_array}
+                    else:
+                        tracked_cars = {}
 
                     # Convert frame from BGR to RGB
                     frame_result = cv2.cvtColor(frame_result, cv2.COLOR_BGR2RGB)
