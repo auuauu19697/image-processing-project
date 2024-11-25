@@ -11,9 +11,8 @@ def home_page():
 
     st.markdown(
         """
-        ### Features of the Model:
-        - Navigate between pages using the sidebar.
-        - Process videos on the "Video Processing" page.
-        - Explore more features coming soon!
+        ### Features:
+        - Detecting car crash.
+        - Count How many cars in the video.
         """
     )
