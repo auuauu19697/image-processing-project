@@ -40,7 +40,7 @@ def video_process_page():
         cap = cv2.VideoCapture(st.session_state.temp_video_path)
         stframe = st.empty()
         frame_counter = 0
-        frame_skip = 1  # Process every nth frame
+        frame_skip = 2  # Process every nth frame
         tracked_cars = {}
         crossed_car_ids = set()
 
@@ -108,8 +108,6 @@ def video_process_page():
 
                     # Update Streamlit display
                     stframe.image(frame_result, channels='RGB', use_column_width=True)
-                    # car_count_text.markdown(f"**Car detected:** {car_count}")
-                    # accident_count_text.markdown(f"**Accident detected:** {accident_count}")
                     crossed_car_count_text.markdown(f"**Cars drive through:** {crossed_car_count}")
 
                     time.sleep(0.015)  # Control frame rate
