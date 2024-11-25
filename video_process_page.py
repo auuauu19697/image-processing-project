@@ -112,9 +112,9 @@ def video_process_page():
 
                     # Update Streamlit display
                     stframe.image(frame_result, channels='RGB', use_column_width=True)
-                    car_count_text.markdown(f"**Car detected:** {car_count}")
-                    accident_count_text.markdown(f"**Accident detected:** {accident_count}")
-                    crossed_car_count_text.markdown(f"**Cars crossed the line:** {crossed_car_count}")
+                    # car_count_text.markdown(f"**Car detected:** {car_count}")
+                    # accident_count_text.markdown(f"**Accident detected:** {accident_count}")
+                    crossed_car_count_text.markdown(f"**Cars drive through:** {crossed_car_count}")
 
                     time.sleep(0.015)  # Control frame rate
 
