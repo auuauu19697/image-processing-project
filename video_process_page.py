@@ -28,13 +28,9 @@ def video_process_page():
 
         # Initialize counts and display placeholders
         car_count = 0
-        accident_count = 0
         crossed_car_count = 0
-        car_count_text = st.empty()
-        accident_count_text = st.empty()
+
         crossed_car_count_text = st.empty()
-        car_count_text.markdown(f"**Car detected:** {car_count}")
-        accident_count_text.markdown(f"**Accident detected:** {accident_count}")
         crossed_car_count_text.markdown(f"**Cars crossed the line:** {crossed_car_count}")
 
         # Define a vertical line position for detecting crossings
