@@ -40,7 +40,7 @@ def video_process_page():
         cap = cv2.VideoCapture(st.session_state.temp_video_path)
         stframe = st.empty()
         frame_counter = 0
-        frame_skip = 2  # Process every nth frame
+        frame_skip = 1  # Process every nth frame
         tracked_cars = {}
         crossed_car_ids = set()
 
